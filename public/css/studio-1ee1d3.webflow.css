@@ -2172,7 +2172,7 @@ a {
   }
 
   .studio-logo-wrapper {
-    height: 2.4rem;
+    height: auto;
   }
 
   .primary-button-text {
@@ -2310,7 +2310,7 @@ a {
   }
 
   .centered-studio-wrapper {
-    top: -160px;
+    top: -200px;
   }
 
   .hw-studio-hero-text {
