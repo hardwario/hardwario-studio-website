@@ -282,8 +282,12 @@ a {
 }
 
 .main-section.studio {
-  position: absolute;
-  inset: 30% 0% 0%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .content-padding-standard {
@@ -1537,6 +1541,46 @@ a {
   letter-spacing: -.01px;
 }
 
+.hero-video-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+}
+
+.video-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  background: url("fallback.jpg") center center / cover no-repeat;
+}
+
+.video-foreground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.video-foreground iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 177.78%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
 @media screen and (max-width: 991px) {
   .navbar-button-wrapper {
     flex-direction: column-reverse;
@@ -1691,10 +1735,6 @@ a {
     max-height: 40px;
   }
 
-  .centered-studio-wrapper {
-    top: -50px;
-  }
-
   .hw-studio-hero-text {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -1771,7 +1811,12 @@ a {
     grid-column-gap: 15px;
     grid-row-gap: 15px;
   }
+
+  .hero-video-wrapper {
+    height: 60vh;
+  }
 }
+
 
 @media screen and (max-width: 767px) {
   h1 {
@@ -1968,10 +2013,6 @@ a {
     max-height: 35px;
   }
 
-  .centered-studio-wrapper {
-    top: -200px;
-  }
-
   .hw-studio-hero-text {
     word-break: normal;
     margin-top: 15px;
@@ -2141,6 +2182,10 @@ a {
   .heading-8 {
     font-size: 14px;
   }
+
+  .hero-video-wrapper {
+    height: 50vh;
+  }
 }
 
 @media screen and (max-width: 479px) {
@@ -2309,10 +2354,6 @@ a {
     max-height: 25px;
   }
 
-  .centered-studio-wrapper {
-    top: -200px;
-  }
-
   .hw-studio-hero-text {
     white-space: normal;
     word-break: normal;
@@ -2402,6 +2443,10 @@ a {
     align-items: center;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .hero-video-wrapper {
+    height: 40vh;
   }
 }
 
