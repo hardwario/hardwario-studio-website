@@ -2168,7 +2168,7 @@ import background from "../assets/background.svg";
 						id="w-node-f465443c-614a-e78b-9a56-0bb2a982488e-2340a185"
 						class="studio-button contact-form-button w-button"
 						value="Poslat"
-					/><!--<input
+					/><input
 						class="other-subject-studio-contact-form-input-field w-node-f465443c-614a-e78b-9a56-0bb2a982488f-2340a185 w-input"
 						maxlength="256"
 						name="Other-Subject"
@@ -2177,7 +2177,7 @@ import background from "../assets/background.svg";
 						type="text"
 						id="input-other"
 						required=""
-					/>-->
+					/>
 				</form>
 				<div class="w-form-done">
 					<div>Thank you! Your submission has been received!</div>
@@ -2647,3 +2647,60 @@ import background from "../assets/background.svg";
 	integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
 	crossorigin="anonymous"></script>
 <script src="js/webflow.js" type="text/javascript"></script>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form           = document.querySelector('#contact-form');
+    const subjectSelect  = document.querySelector('#select-subject');
+    const otherInput     = document.querySelector('#input-other');
+
+    if (!form || !subjectSelect || !otherInput) return;
+
+    // --- Show/hide "Other-Subject" and toggle required -----------------------
+    const updateOtherVisibility = () => {
+      const useOther = subjectSelect.value === 'other';
+      otherInput.style.display = useOther ? 'block' : 'none';
+      otherInput.required = useOther;
+      if (!useOther) otherInput.value = '';
+    };
+
+    // Initialize on load
+    updateOtherVisibility();
+    subjectSelect.addEventListener('change', updateOtherVisibility);
+
+    // --- Map "Poptat ..." buttons to <select> value --------------------------
+    // Map button intent to an existing <option value="..."> in the select:
+    const subjectMap = [
+      { test: /vyrobu/i, value: 'Zakázková výroba' }, // "Poptat VÝROBU"
+      { test: /vyvoj/i,  value: 'Zakázkový vývoj' },  // "Poptat VÝVOJ"
+      { test: /tisk/i,   value: 'Zákázkový 3D tisk' } // "Poptat Tisk"
+    ];
+
+    // Helper: strip Czech diacritics to make matching robust
+    const stripAccents = (s) =>
+      s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // Attach to any #contact button; only act if it says "Poptat ..."
+    document.querySelectorAll('a[href="#contact"].studio-button, a[href="#contact"].studio-hero-button')
+      .forEach((a) => {
+        a.addEventListener('click', () => {
+          const labelEl = a.querySelector('.primary-button-text');
+          const label   = (labelEl ? labelEl.textContent : a.textContent).trim();
+
+          if (!/poptat/i.test(label)) return; // ignore "Kontakt", "Začít", etc.
+
+          const raw = stripAccents(label).toLowerCase();
+          const match = subjectMap.find(m => m.test.test(raw));
+          if (!match) return;
+
+          // Set the select to the mapped value if that option exists
+          const opt = Array.from(subjectSelect.options).find(o => o.value === match.value);
+          if (opt) {
+            subjectSelect.value = opt.value;
+            // Trigger the change handler to refresh "Other-Subject" visibility
+            subjectSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }, { passive: true });
+      });
+  });
+</script>
