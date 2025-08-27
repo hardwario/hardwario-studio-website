@@ -2647,14 +2647,27 @@ import background from "../assets/background.svg";
 				</a>
 			</div>
 			<div id="shadow" class="studio-contact-us-form w-form">
+				<!-- add once (can go near your other styles) -->
+				<style>
+					.sr-only {
+						position: absolute;
+						left: -10000px;
+						top: auto;
+						width: 1px;
+						height: 1px;
+						overflow: hidden;
+					}
+				</style>
+
 				<form
+					data-wf-ignore="true"
 					netlify
 					netlify-honeypot="bot-field"
 					id="contact-form"
 					name="contact-form"
-					data-name="Subject"
 					class="contact-form"
 					target="_self"
+					accept-charset="UTF-8"
 				>
 					<!-- Netlify helpers -->
 					<input
@@ -2662,7 +2675,7 @@ import background from "../assets/background.svg";
 						name="form-name"
 						value="contact-form"
 					/>
-					<p hidden aria-hidden="true">
+					<p class="sr-only" aria-hidden="true">
 						<label
 							>Don’t fill this out: <input
 								name="bot-field"
@@ -2676,7 +2689,7 @@ import background from "../assets/background.svg";
 						id="subject-final"
 					/>
 
-					<!-- Your existing fields (unchanged) -->
+					<!-- Your existing fields -->
 					<input
 						class="studio-contact-form-input-field w-input"
 						maxlength="256"
@@ -2740,7 +2753,7 @@ import background from "../assets/background.svg";
 						<option value="other">Vlastní</option>
 					</select>
 
-					<!-- Submit button (kept where it was in your file) -->
+					<!-- Submit -->
 					<input
 						type="submit"
 						data-wait="Čekejte prosím"
@@ -2749,7 +2762,7 @@ import background from "../assets/background.svg";
 						value="Poslat"
 					/>
 
-					<!-- “Other subject” (now hidden & disabled by default; not required in HTML) -->
+					<!-- “Other subject” (hidden & disabled unless "Vlastní" is chosen) -->
 					<input
 						class="other-subject-studio-contact-form-input-field w-node-f465443c-614a-e78b-9a56-0bb2a982488f-2340a185 w-input"
 						maxlength="256"
@@ -3239,20 +3252,18 @@ import background from "../assets/background.svg";
 
 		if (!form || !subjectSelect || !otherInput || !subjectFinal) return;
 
-		// --- Show/hide “Other-Subject” and toggle submittability -------------
+		// Show/hide Other-Subject
 		const updateOtherVisibility = () => {
 			const useOther = subjectSelect.value === "other";
 			otherInput.hidden = !useOther;
 			otherInput.disabled = !useOther;
-			// If you removed `novalidate`, browser will enforce this:
 			otherInput.required = useOther;
 			if (!useOther) otherInput.value = "";
 		};
 		updateOtherVisibility();
 		subjectSelect.addEventListener("change", updateOtherVisibility);
 
-		// --- Map “Poptat …” buttons to the select -----------------------------
-		// Works with any link that scrolls to #contact
+		// Map “Poptat …” buttons to select
 		const subjectMap = [
 			{ test: /vyrobu/i, value: "Zakázková výroba" }, // Poptat VÝROBU
 			{ test: /vyvoj/i, value: "Zakázkový vývoj" }, // Poptat VÝVOJ
@@ -3289,7 +3300,7 @@ import background from "../assets/background.svg";
 			);
 		});
 
-		// --- Normalize subject for Netlify (single canonical field) -----------
+		// Normalize subject for Netlify (single canonical field)
 		form.addEventListener("submit", () => {
 			const isOther = subjectSelect.value === "other";
 			subjectFinal.value = isOther
@@ -3298,3 +3309,11 @@ import background from "../assets/background.svg";
 		});
 	});
 </script>
+<form name="contact-form" netlify netlify-honeypot="bot-field" hidden>
+	<input type="text" name="First-Name" />
+	<input type="text" name="Last-Name" />
+	<input type="email" name="E-Mail" />
+	<textarea name="Message"></textarea>
+	<input type="text" name="Subject-Final" />
+	<input name="bot-field" />
+</form>
