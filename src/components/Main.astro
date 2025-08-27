@@ -2649,13 +2649,34 @@ import background from "../assets/background.svg";
 			<div id="shadow" class="studio-contact-us-form w-form">
 				<form
 					netlify
+					netlify-honeypot="bot-field"
 					id="contact-form"
 					name="contact-form"
 					data-name="Subject"
 					class="contact-form"
 					target="_self"
-					novalidate
 				>
+					<!-- Netlify helpers -->
+					<input
+						type="hidden"
+						name="form-name"
+						value="contact-form"
+					/>
+					<p hidden aria-hidden="true">
+						<label
+							>Don’t fill this out: <input
+								name="bot-field"
+							/></label
+						>
+					</p>
+					<!-- Canonical subject Netlify will store -->
+					<input
+						type="hidden"
+						name="Subject-Final"
+						id="subject-final"
+					/>
+
+					<!-- Your existing fields (unchanged) -->
 					<input
 						class="studio-contact-form-input-field w-input"
 						maxlength="256"
@@ -2664,8 +2685,9 @@ import background from "../assets/background.svg";
 						placeholder="Jméno"
 						type="text"
 						id="First-Name"
-						required=""
-					/><input
+						required
+					/>
+					<input
 						class="studio-contact-form-input-field w-node-f465443c-614a-e78b-9a56-0bb2a982488a-2340a185 w-input"
 						maxlength="256"
 						name="Last-Name"
@@ -2673,7 +2695,8 @@ import background from "../assets/background.svg";
 						placeholder="Příjmení"
 						type="text"
 						id="Last-Name"
-					/><input
+					/>
+					<input
 						class="studio-contact-form-input-field w-node-f465443c-614a-e78b-9a56-0bb2a982488b-2340a185 w-input"
 						maxlength="256"
 						name="E-Mail"
@@ -2681,18 +2704,22 @@ import background from "../assets/background.svg";
 						placeholder="E-mail"
 						type="email"
 						id="E-Mail"
-						required=""
-					/><textarea
+						required
+					/>
+					<textarea
 						class="studio-contact-form-input-field w-node-f465443c-614a-e78b-9a56-0bb2a982488c-2340a185 w-input"
 						maxlength="5000"
 						name="Message"
 						data-name="Message"
 						placeholder="Zpráva"
-						id="message"></textarea><select
+						id="message"></textarea>
+
+					<!-- Subject select -->
+					<select
 						id="select-subject"
 						name="Subject"
 						data-name="Subject"
-						required=""
+						required
 						class="studio-contact-select-field w-node-f465443c-614a-e78b-9a56-0bb2a982488d-2340a185 w-select"
 					>
 						<option value="Velkoformátový 3D tisk"
@@ -2711,13 +2738,19 @@ import background from "../assets/background.svg";
 						>
 						<option value="Zakázkový vývoj">Zakázkový vývoj</option>
 						<option value="other">Vlastní</option>
-					</select><input
+					</select>
+
+					<!-- Submit button (kept where it was in your file) -->
+					<input
 						type="submit"
 						data-wait="Čekejte prosím"
 						id="w-node-f465443c-614a-e78b-9a56-0bb2a982488e-2340a185"
 						class="studio-button contact-form-button w-button"
 						value="Poslat"
-					/><input
+					/>
+
+					<!-- “Other subject” (now hidden & disabled by default; not required in HTML) -->
+					<input
 						class="other-subject-studio-contact-form-input-field w-node-f465443c-614a-e78b-9a56-0bb2a982488f-2340a185 w-input"
 						maxlength="256"
 						name="Other-Subject"
@@ -2725,7 +2758,8 @@ import background from "../assets/background.svg";
 						placeholder="Vlastní předmět"
 						type="text"
 						id="input-other"
-						required=""
+						hidden
+						disabled
 					/>
 				</form>
 				<div class="w-form-done">
@@ -3201,67 +3235,66 @@ import background from "../assets/background.svg";
 		const form = document.querySelector("#contact-form");
 		const subjectSelect = document.querySelector("#select-subject");
 		const otherInput = document.querySelector("#input-other");
+		const subjectFinal = document.querySelector("#subject-final");
 
-		if (!form || !subjectSelect || !otherInput) return;
+		if (!form || !subjectSelect || !otherInput || !subjectFinal) return;
 
-		// --- Show/hide "Other-Subject" and toggle required -----------------------
+		// --- Show/hide “Other-Subject” and toggle submittability -------------
 		const updateOtherVisibility = () => {
 			const useOther = subjectSelect.value === "other";
-			otherInput.style.display = useOther ? "block" : "none";
+			otherInput.hidden = !useOther;
+			otherInput.disabled = !useOther;
+			// If you removed `novalidate`, browser will enforce this:
 			otherInput.required = useOther;
 			if (!useOther) otherInput.value = "";
 		};
-
-		// Initialize on load
 		updateOtherVisibility();
 		subjectSelect.addEventListener("change", updateOtherVisibility);
 
-		// --- Map "Poptat ..." buttons to <select> value --------------------------
-		// Map button intent to an existing <option value="..."> in the select:
+		// --- Map “Poptat …” buttons to the select -----------------------------
+		// Works with any link that scrolls to #contact
 		const subjectMap = [
-			{ test: /vyrobu/i, value: "Zakázková výroba" }, // "Poptat VÝROBU"
-			{ test: /vyvoj/i, value: "Zakázkový vývoj" }, // "Poptat VÝVOJ"
-			{ test: /tisk/i, value: "Zákázkový 3D tisk" }, // "Poptat Tisk"
+			{ test: /vyrobu/i, value: "Zakázková výroba" }, // Poptat VÝROBU
+			{ test: /vyvoj/i, value: "Zakázkový vývoj" }, // Poptat VÝVOJ
+			{ test: /tisk/i, value: "Zákázkový 3D tisk" }, // Poptat Tisk
 		];
-
-		// Helper: strip Czech diacritics to make matching robust
 		const stripAccents = (s) =>
 			s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-		// Attach to any #contact button; only act if it says "Poptat ..."
-		document
-			.querySelectorAll(
-				'a[href="#contact"].studio-button, a[href="#contact"].studio-hero-button',
-			)
-			.forEach((a) => {
-				a.addEventListener(
-					"click",
-					() => {
-						const labelEl = a.querySelector(".primary-button-text");
-						const label = (
-							labelEl ? labelEl.textContent : a.textContent
-						).trim();
+		document.querySelectorAll('a[href="#contact"]').forEach((a) => {
+			a.addEventListener(
+				"click",
+				() => {
+					const labelEl = a.querySelector(".primary-button-text");
+					const label = (
+						labelEl ? labelEl.textContent : a.textContent
+					).trim();
+					if (!/poptat/i.test(label)) return;
 
-						if (!/poptat/i.test(label)) return; // ignore "Kontakt", "Začít", etc.
+					const raw = stripAccents(label).toLowerCase();
+					const match = subjectMap.find((m) => m.test.test(raw));
+					if (!match) return;
 
-						const raw = stripAccents(label).toLowerCase();
-						const match = subjectMap.find((m) => m.test.test(raw));
-						if (!match) return;
-
-						// Set the select to the mapped value if that option exists
-						const opt = Array.from(subjectSelect.options).find(
-							(o) => o.value === match.value,
+					const opt = Array.from(subjectSelect.options).find(
+						(o) => o.value === match.value,
+					);
+					if (opt) {
+						subjectSelect.value = opt.value;
+						subjectSelect.dispatchEvent(
+							new Event("change", { bubbles: true }),
 						);
-						if (opt) {
-							subjectSelect.value = opt.value;
-							// Trigger the change handler to refresh "Other-Subject" visibility
-							subjectSelect.dispatchEvent(
-								new Event("change", { bubbles: true }),
-							);
-						}
-					},
-					{ passive: true },
-				);
-			});
+					}
+				},
+				{ passive: true },
+			);
+		});
+
+		// --- Normalize subject for Netlify (single canonical field) -----------
+		form.addEventListener("submit", () => {
+			const isOther = subjectSelect.value === "other";
+			subjectFinal.value = isOther
+				? otherInput.value || "Vlastní"
+				: subjectSelect.value;
+		});
 	});
 </script>
