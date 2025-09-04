@@ -2543,6 +2543,12 @@ a {
   #w-node-_3e2c93ff-4540-9698-f1e9-2d75dcdbff97-5e6a0fa9 {
     grid-column: span 2 / span 2;
   }
+  #select-subject.w-node-f465443c-614a-e78b-9a56-0bb2a982488d-2340a185 {
+    grid-area: 4 / 1 / 4 / 2;
+  }
+  #input-other.w-node-f465443c-614a-e78b-9a56-0bb2a982488f-2340a185 {
+    grid-area: 5 / 1 / 5 / 2;
+  }
 }
 
 @media screen and (max-width: 479px) {
